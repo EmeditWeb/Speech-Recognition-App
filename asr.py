@@ -90,8 +90,12 @@ def transcribe_long_form(audio_input_bytes, file_format="wav"):
             filepath = tmp_file.name
 
         # --- CRITICAL CHANGE HERE: REMOVE problematic arguments ---
-        # Removed max_new_tokens, chunk_length_s, batch_size
-        output = asr(filepath) # Only pass the filepath
+        output = asr(
+            filepath,
+            chunk_length_s=30,  # For handling long audio files (e.g., audio more than 30 secs)
+            batch_size=8, 
+
+        )
         # --- END CRITICAL CHANGE ---
 
         return output["text"]
