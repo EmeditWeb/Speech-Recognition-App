@@ -1,15 +1,17 @@
+
 import streamlit as st
 from transformers import pipeline
 import os
 import tempfile
 import io
+from streamlit_mic_recorder import mic_recorder
 
 # --- Meta Tags and Favicon (Go at the very top of your script) ---
 st.set_page_config(
     page_title="Automatic Speech Recognition App | EmeditWeb",
     page_icon="🎙️",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
 )
 
 # --- Custom CSS for Header and Footer ---
@@ -67,67 +69,80 @@ def load_asr_model():
 
 asr = load_asr_model()
 
-def transcribe_long_form(audio_input):
+def transcribe_long_form(audio_input_bytes, file_format="wav"):
     """
     Transcribes audio input using the ASR model.
-    Handles both file paths and bytesIO objects for audio.
+    Handles bytesIO objects from mic_recorder or file_uploader.
     """
-    if audio_input is None:
+    if audio_input_bytes is None:
         st.warning("No audio found, please retry.")
         return ""
 
     filepath = None
-    if isinstance(audio_input, str):
-        filepath = audio_input
-    elif isinstance(audio_input, io.BytesIO):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
-            tmp_file.write(audio_input.getvalue())
-            filepath = tmp_file.name
-    else:
-        st.error("Unsupported audio input type.")
-        return ""
-
     try:
-        output = asr(
-            filepath,
-            max_new_tokens=256,
-            chunk_length_s=30,
-            batch_size=8,
-        )
+        # Create a BytesIO object from the audio bytes
+        audio_io = io.BytesIO(audio_input_bytes)
+
+        # Save BytesIO content to a temporary file for the ASR pipeline to process
+        # Use the provided file_format for the suffix
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format}") as tmp_file:
+            tmp_file.write(audio_io.getvalue())
+            filepath = tmp_file.name
+
+        # --- CRITICAL CHANGE HERE: REMOVE problematic arguments ---
+        # Removed max_new_tokens, chunk_length_s, batch_size
+        output = asr(filepath) # Only pass the filepath
+        # --- END CRITICAL CHANGE ---
+
         return output["text"]
     finally:
-        if filepath and filepath.startswith(tempfile.gettempdir()):
+        # Clean up the temporary file if it was created
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
 
-# Tabs for functionality
+# --- Main App Content ---
 tab1, tab2 = st.tabs(["Transcribe Microphone", "Transcribe Audio File"])
 
 with tab1:
     st.header("Transcribe from Microphone")
-    st.write("Please use an external library for microphone input as Streamlit doesn't have a native one yet.")
-    st.info("For microphone input in Streamlit, you would typically use a third-party component like `streamlit-webrtc` or `streamlit_mic_recorder`. This example will show a placeholder for it.")
+    st.write("Click 'Start recording' to capture your voice.")
 
-    st.markdown("---")
-    st.markdown("**Note:** Streamlit does not have a native microphone input widget. For live microphone input, you would need to integrate a custom component like `streamlit-webrtc` or `streamlit_mic_recorder`.")
+    audio_data = mic_recorder(
+        start_prompt="Start recording",
+        stop_prompt="Stop recording",
+        format="wav",
+        just_once=True,
+        use_container_width=True,
+        key="mic_recorder_widget"
+    )
 
+    if audio_data:
+        audio_bytes = audio_data.get("bytes")
+        if audio_bytes:
+            st.audio(audio_bytes, format="audio/wav")
+            st.write("Transcribing from microphone...")
+            transcription_mic = transcribe_long_form(audio_bytes, file_format="wav")
+            st.text_area("Transcription", value=transcription_mic, height=150)
+        else:
+            st.warning("No audio bytes captured from microphone.")
 
 with tab2:
     st.header("Transcribe from Audio File")
-    uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac", "ogg"])
+    uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac", "ogg", "aac"])
 
     if uploaded_file is not None:
         st.audio(uploaded_file, format=uploaded_file.type)
         st.write("Transcribing...")
 
-        transcription_file = transcribe_long_form(io.BytesIO(uploaded_file.getvalue()))
+        file_extension = uploaded_file.name.split('.')[-1]
+        transcription_file = transcribe_long_form(uploaded_file.getvalue(), file_format=file_extension)
         st.text_area("Transcription", value=transcription_file, height=150)
 
 # --- Footer Section ---
-# Streamlit does not have a native footer widget. We use markdown with HTML/CSS.
 st.markdown(
     """
     <div class="footer">
-        Built by Emmanuel Itighise | For 3MTT July Project Showcase 🚀
+        Built by Emedit | For 3MTT July Project Showcase 🚀
     </div>
     """,
     unsafe_allow_html=True
