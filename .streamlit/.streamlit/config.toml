@@ -1,0 +1,22 @@
+# .streamlit/config.toml
+
+[theme]
+# Base color scheme (light or dark)
+base="dark"
+# Primary accent for interactive elements
+primaryColor="#69F0AE"
+# Background color for the main content area
+backgroundColor="#1E1E1E"
+# Background color for sidebar and most interactive widgets
+secondaryBackgroundColor="#2D2D2D"
+# Color for most text
+textColor="#E0E0E0"
+# Font family for the app
+font="sans serif"
+
+[server]
+# Max file upload size in MB (default is 200MB)
+maxUploadSize = 400
+
+[browser]
+gatherUsageStats = false
