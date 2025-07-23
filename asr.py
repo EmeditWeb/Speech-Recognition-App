@@ -6,19 +6,10 @@ import io
 
 # --- Meta Tags and Favicon (Go at the very top of your script) ---
 st.set_page_config(
-    page_title="Automatic Speech Recognition App",
+    page_title="Automatic Speech Recognition App | EmeditWeb",
     page_icon="🎙️",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    # Set the theme to dark
-    theme={
-        "base": "dark",
-        "primaryColor": "#69F0AE", # A vibrant green for accents (buttons, links)
-        "backgroundColor": "#1E1E1E", # Dark background
-        "secondaryBackgroundColor": "#2D2D2D", # Slightly lighter dark for components
-        "textColor": "#E0E0E0", # Light text for contrast
-        "font": "sans serif"
-    }
+    initial_sidebar_state="collapsed"
 )
 
 # --- Custom CSS for Header and Footer ---
