@@ -10,14 +10,13 @@ from streamlit_mic_recorder import mic_recorder
 st.set_page_config(
     page_title="Automatic Speech Recognition App | EmeditWeb",
     page_icon="🎙️",
-    # --- MOBILE RESPONSIVENESS: Changed from "wide" to "centered" ---
-    # "centered" layouts adapt more gracefully to smaller screens by limiting content width.
+    # --- MOBILE RESPONSIVENESS: Centered layout is generally better for mobile ---
     layout="centered", 
     # --- END MOBILE RESPONSIVENESS CHANGE ---
     initial_sidebar_state="collapsed",
 )
 
-# --- Custom CSS for Header, Footer, AND Elastic Textarea & Mobile Responsiveness ---
+# --- Custom CSS for Header, Footer & Mobile Responsiveness ---
 st.markdown(
     """
     <style>
@@ -60,14 +59,10 @@ st.markdown(
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow at the top */
     }
 
-    /* --- ELASTIC TEXTAREA CSS --- */
-    /* Target the actual textarea element within Streamlit's st.text_area widget */
-    .stTextArea textarea {
-        height: auto !important; /* Force height to adjust to content */
-        overflow-y: hidden !important; /* Hide vertical scrollbar */
-        resize: none !important; /* Disable user resizing handle (e.g., in Chrome) */
-    }
-    /* --- END ELASTIC TEXTAREA CSS --- */
+    /* --- REMOVED ELASTIC TEXTAREA CSS --- */
+    /* The previous CSS to force height: auto and hide overflow-y is removed */
+    /* to restore fixed height with internal scrollbar functionality. */
+    /* If you ever want elastic behavior again, you can re-add that CSS. */
 
     /* --- MEDIA QUERIES for Mobile Responsiveness --- */
     @media (max-width: 768px) { /* Styles for screens up to 768px wide (e.g., tablets and phones) */
@@ -106,11 +101,10 @@ st.markdown('<p class="small-italic-font">Powered by OpenAI Whisper Model</p>', 
 # Load the ASR model
 @st.cache_resource
 def load_asr_model():
-    # --- 
+    # --- Retrieving Model Name from Streamlit Settings (Secrets) -
     model_name = st.secrets.get("model")
     
     # Load the ASR pipeline with the model name obtained from Streamlit's settings.
- 
     return pipeline(
         task="automatic-speech-recognition",
         model=model_name
@@ -176,13 +170,13 @@ with tab1:
             with st.spinner("Transcribing from microphone..."):
                 transcription_mic = transcribe_long_form(audio_bytes, file_format="wav")
             
-            # --- Elastic Textbox Display ---
+            # --- FIXED HEIGHT TEXTBOX (300px = 150px * 2) ---
             st.text_area(
                 "Transcription:",
                 value=transcription_mic,
-                height=None, # This helps, but the CSS rule is key for true elasticity
+                height=300, # Set to 300px (double of original 150px)
                 key="transcription_mic_output",
-                help="This box automatically adjusts its size to show the full transcription."
+                help="The transcription text. Scroll within the box to see the full content."
             )
             
             # --- Download Function ---
@@ -191,7 +185,7 @@ with tab1:
                 st.download_button(
                     label="Download Transcription",
                     data=transcription_mic,
-                    file_name="my_transcribed_text.xt",
+                    file_name="microphone_transcription.txt", # Corrected file extension to .txt
                     mime="text/plain",
                     key="download_mic_transcription_button",
                     help="Click to download the full transcribed text as a .txt file."
@@ -211,13 +205,13 @@ with tab2:
             file_extension = uploaded_file.name.split('.')[-1]
             transcription_file = transcribe_long_form(uploaded_file.getvalue(), file_format=file_extension)
         
-        # --- Elastic Textbox Display ---
+        # --- FIXED HEIGHT TEXTBOX (300px = 150px * 2) ---
         st.text_area(
             "Transcription:",
             value=transcription_file,
-            height=None, # This helps, but the CSS rule is key for true elasticity
+            height=300, # Set to 300px (double of original 150px)
             key="transcription_file_output",
-            help="This box automatically adjusts its size to show the full transcription."
+            help="The transcription text. Scroll within the box to see the full content."
         )
         
         # --- Download Function ---
