@@ -1,6 +1,6 @@
 # Speech-Recognition-App
 
-This repository hosts the code for my Streamlit-powered speech application. This app leverages advanced speech models to provide [briefly describe your app's core functionality, e.g., "accurate speech-to-text transcription," or "natural-sounding text-to-speech conversion," or "intelligent voice assistant features"].
+This repository hosts the code for my Streamlit-powered speech application. This app leverages advanced speech models to understand and provide speech-to-text transcription with stunning accuracy.
 
 ---
 
@@ -14,9 +14,9 @@ Here's a quick look at what the application looks like:
 
 ## Features
 
-* **[Feature 1]:** [Describe a key feature, e.g., "Real-time audio processing"].
-* **[Feature 2]:** [Describe another key feature, e.g., "Supports multiple languages/accents (if applicable)"].
-* **[Feature 3]:** [Describe any unique selling points, e.g., "Intuitive user interface for easy interaction"].
+* ### Real-time audio processing.
+* ### Supports audio file of more than 1 minute.
+* ### Intuitive user interface for easy interaction.
 
 ---
 
@@ -69,9 +69,7 @@ This application is deployed on Streamlit for easy access. You can find the live
 
 ## Model Information
 
-*(**Optional, but recommended for transparency and if your model is publicly available/from Hugging Face Hub**)*
-
-This application utilizes a custom-trained/fine-tuned speech model. The model file (approx. 300-350MB) is managed securely and not directly included in this public repository to ensure optimal performance and protect intellectual property. It is sourced from Hugging Face Hub private repository
+This application utilizes a custom-trained/fine-tuned OpenAI Whisper speech model. The model file (approx. 300-350MB) is managed securely and not directly included in this public repository to ensure optimal performance and protect intellectual property. It is sourced from Hugging Face Hub private repository
 
 ---
 
