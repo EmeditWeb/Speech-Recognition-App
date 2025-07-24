@@ -104,7 +104,7 @@ def load_asr_model():
     # --- Retrieving Model Name from Streamlit Settings (Secrets) -
     model_name = st.secrets.get("model")
     
-    # Load the ASR pipeline with the model name obtained from Streamlit's settings.
+    # Load the ASR pipeline with the model
     return pipeline(
         task="automatic-speech-recognition",
         model=model_name
@@ -170,7 +170,7 @@ with tab1:
             with st.spinner("Transcribing from microphone..."):
                 transcription_mic = transcribe_long_form(audio_bytes, file_format="wav")
             
-            # --- FIXED HEIGHT TEXTBOX (300px = 150px * 2) ---
+            # --- Fixed heights  ---
             st.text_area(
                 "Transcription:",
                 value=transcription_mic,
@@ -185,7 +185,7 @@ with tab1:
                 st.download_button(
                     label="Download Transcription",
                     data=transcription_mic,
-                    file_name="microphone_transcription.txt", # Corrected file extension to .txt
+                    file_name="microphone_text.txt", # Corrected file extension to .txt
                     mime="text/plain",
                     key="download_mic_transcription_button",
                     help="Click to download the full transcribed text as a .txt file."
@@ -231,7 +231,7 @@ with tab2:
 st.markdown(
     """
     <div class="footer">
-        Built by Emedit | For 3MTT July Project Showcase 🚀
+        Built by Emmanuel Itighise | For 3MTT July Project Showcase 🖥️
     </div>
     """,
     unsafe_allow_html=True
