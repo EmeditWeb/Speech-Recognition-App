@@ -4,23 +4,31 @@ import os
 import tempfile
 import io
 from streamlit_mic_recorder import mic_recorder
+# No need for HfFolder as the current model is public and accessed via secrets for obscurity, not private access.
 
-# --- Meta Tags and Favicon 
+# --- Meta Tags and Favicon (Go at the very top of your script) ---
 st.set_page_config(
     page_title="Automatic Speech Recognition App | EmeditWeb",
     page_icon="🎙️",
-    # --- CHANGE FOR MOBILE RESPONSIVENESS ---
-    # Changed from "wide" to "centered" for better mobile fitting.
-    # "centered" layouts adapt more gracefully to smaller screens.
+    # --- MOBILE RESPONSIVENESS: Changed from "wide" to "centered" ---
+    # "centered" layouts adapt more gracefully to smaller screens by limiting content width.
     layout="centered", 
-    # --- END CHANGE ---
+    # --- END MOBILE RESPONSIVENESS CHANGE ---
     initial_sidebar_state="collapsed",
 )
 
-# --- Custom CSS for Header and Footer ---
+# --- Custom CSS for Header, Footer, AND Elastic Textarea & Mobile Responsiveness ---
 st.markdown(
     """
     <style>
+    /* Global App Padding for Responsiveness */
+    .stApp {
+        padding-bottom: 70px; /* Add padding to the bottom of the main content to prevent footer overlap */
+        padding-left: 1rem; 
+        padding-right: 1rem;
+    }
+
+    /* Header Fonts */
     .big-font {
         font-size:50px !important;
         font-weight: bold;
@@ -36,6 +44,8 @@ st.markdown(
         margin-top: -20px;
         margin-bottom: 30px;
     }
+    
+    /* Footer Styling */
     .footer {
         position: fixed;
         left: 0;
@@ -49,13 +59,15 @@ st.markdown(
         z-index: 100; /* Ensure footer is on top of other elements */
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow at the top */
     }
-    .stApp {
-        padding-bottom: 70px; /* Add padding to the bottom of the main content to prevent footer overlap */
-        /* --- ADDED FOR MOBILE RESPONSIVENESS --- */
-        /* Reduce horizontal padding on very small screens for better use of space */
-        padding-left: 1rem; 
-        padding-right: 1rem;
+
+    /* --- ELASTIC TEXTAREA CSS --- */
+    /* Target the actual textarea element within Streamlit's st.text_area widget */
+    .stTextArea textarea {
+        height: auto !important; /* Force height to adjust to content */
+        overflow-y: hidden !important; /* Hide vertical scrollbar */
+        resize: none !important; /* Disable user resizing handle (e.g., in Chrome) */
     }
+    /* --- END ELASTIC TEXTAREA CSS --- */
 
     /* --- MEDIA QUERIES for Mobile Responsiveness --- */
     @media (max-width: 768px) { /* Styles for screens up to 768px wide (e.g., tablets and phones) */
@@ -71,9 +83,9 @@ st.markdown(
             padding-left: 0.5rem; /* Even smaller side padding on very narrow screens */
             padding-right: 0.5rem;
         }
-        /* Further adjustments if needed for specific elements, e.g., button sizes */
+        /* Make buttons full width on small screens if desired for better touch targets */
         .stButton>button {
-            width: 100%; /* Make buttons full width on small screens if desired */
+            width: 100%; 
             margin-bottom: 10px; /* Add space between stacked buttons */
         }
     }
@@ -94,8 +106,15 @@ st.markdown('<p class="small-italic-font">Powered by OpenAI Whisper Model</p>', 
 # Load the ASR model
 @st.cache_resource
 def load_asr_model():
-    return pipeline(task="automatic-speech-recognition",
-                    model="distil-whisper/distil-small.en")
+    # --- 
+    model_name = st.secrets.get("model")
+    
+    # Load the ASR pipeline with the model name obtained from Streamlit's settings.
+ 
+    return pipeline(
+        task="automatic-speech-recognition",
+        model=model_name
+    )
 
 asr = load_asr_model()
 
@@ -132,12 +151,14 @@ def transcribe_long_form(audio_input_bytes, file_format="wav"):
             os.remove(filepath)
 
 # --- Main App Content ---
+# Using tabs helps organize content and naturally stacks on mobile.
 tab1, tab2 = st.tabs(["Transcribe Microphone", "Transcribe Audio File"])
 
 with tab1:
     st.header("Transcribe from Microphone")
     st.write("Click 'Start recording' to capture your voice.")
 
+    # Microphone Recorder Widget
     audio_data = mic_recorder(
         start_prompt="Start recording",
         stop_prompt="Stop recording",
@@ -155,21 +176,22 @@ with tab1:
             with st.spinner("Transcribing from microphone..."):
                 transcription_mic = transcribe_long_form(audio_bytes, file_format="wav")
             
-            # Elastic Textbox
+            # --- Elastic Textbox Display ---
             st.text_area(
                 "Transcription:",
                 value=transcription_mic,
-                height=None, # Makes the textbox elastic
+                height=None, # This helps, but the CSS rule is key for true elasticity
                 key="transcription_mic_output",
                 help="This box automatically adjusts its size to show the full transcription."
             )
             
-            # Download Function
-            if transcription_mic: # Only show download button if transcription exists
+            # --- Download Function ---
+            # The download button only appears if there's actual transcription text.
+            if transcription_mic: 
                 st.download_button(
                     label="Download Transcription",
                     data=transcription_mic,
-                    file_name="microphone_transcription.txt",
+                    file_name="my_transcribed_text.xt",
                     mime="text/plain",
                     key="download_mic_transcription_button",
                     help="Click to download the full transcribed text as a .txt file."
@@ -179,6 +201,7 @@ with tab1:
 
 with tab2:
     st.header("Transcribe from Audio File")
+    # File Uploader Widget
     uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac", "ogg", "aac"])
 
     transcription_file = "" # Initialize to empty string
@@ -188,21 +211,23 @@ with tab2:
             file_extension = uploaded_file.name.split('.')[-1]
             transcription_file = transcribe_long_form(uploaded_file.getvalue(), file_format=file_extension)
         
-        # Elastic Textbox
+        # --- Elastic Textbox Display ---
         st.text_area(
             "Transcription:",
             value=transcription_file,
-            height=None, # Makes the textbox elastic
+            height=None, # This helps, but the CSS rule is key for true elasticity
             key="transcription_file_output",
             help="This box automatically adjusts its size to show the full transcription."
         )
         
-        # Download Function
-        if transcription_file: # Only show download button if transcription exists
+        # --- Download Function ---
+        # The download button only appears if there's actual transcription text.
+        if transcription_file: 
             st.download_button(
                 label="Download Transcription",
                 data=transcription_file,
-                file_name=f"{uploaded_file.name.split('.')[0]}_transcription.txt", # Uses original file name
+                # Dynamically set file name based on uploaded file's original name
+                file_name=f"{os.path.splitext(uploaded_file.name)[0]}_transcription.txt", 
                 mime="text/plain",
                 key="download_file_transcription_button",
                 help="Click to download the full transcribed text as a .txt file."
