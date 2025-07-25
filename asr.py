@@ -107,7 +107,8 @@ def load_asr_model():
     # Load the ASR pipeline with the model
     return pipeline(
         task="automatic-speech-recognition",
-        model=model_name
+        model=model_name,
+        ignore_warning = True # surpresees the streamlit warning for chunk_length_s 
     )
 
 asr = load_asr_model()
@@ -126,14 +127,13 @@ def transcribe_long_form(audio_input_bytes, file_format="wav"):
         # Create a BytesIO object from the audio bytes
         audio_io = io.BytesIO(audio_input_bytes)
 
-        # Save BytesIO content to a temporary file for the ASR pipeline to process
-        # Use the provided file_format for the suffix
+        
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format}") as tmp_file:
             tmp_file.write(audio_io.getvalue())
             filepath = tmp_file.name
 
         output = asr(
-            filepath,
+            input_features=filepath, # following future proofing adherence incase there's an AI library update 
             chunk_length_s=30,  # For handling long audio files (e.g., audio more than 30 secs)
             batch_size=8, 
         )
