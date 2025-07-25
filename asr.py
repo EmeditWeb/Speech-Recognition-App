@@ -6,7 +6,7 @@ import io
 from streamlit_mic_recorder import mic_recorder
 # No need for HfFolder as the current model is public and accessed via secrets for obscurity, not private access.
 
-# --- Meta Tags and Favicon (Go at the very top of your script) ---
+# --- Meta Tags and Favicon --
 st.set_page_config(
     page_title="Automatic Speech Recognition App | EmeditWeb",
     page_icon="🎙️",
@@ -133,7 +133,7 @@ def transcribe_long_form(audio_input_bytes, file_format="wav"):
             filepath = tmp_file.name
 
         output = asr(
-            input_features=filepath, # following future proofing adherence incase there's an AI library update 
+            input=filepath, # input_features refused to work even with uodated transformer library 
             chunk_length_s=30,  # For handling long audio files (e.g., audio more than 30 secs)
             batch_size=8, 
         )
