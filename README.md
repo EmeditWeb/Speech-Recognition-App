@@ -1,6 +1,6 @@
 # Speech-Recognition-App
 
-This repository hosts the code for my Streamlit-powered speech application. This app leverages advanced speech models to understand and provide speech-to-text transcription with stunning accuracy.
+This repository hosts the code for my Streamlit-powered speech application. This app leverages advanced speech models to understand and provide speech-to-text transcription with stunning accuracy. This Project was created for 3MTT Nigeria July 2025 Project Showcase 
 
 ---
 
@@ -36,7 +36,7 @@ Follow these steps to set up and run the application on your local machine:
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/EmeditWeb/Speech-Recognition-App.git
-    cd [YourRepoName]
+    cd Speech-Recognition-App
     ```
 2.  **Create a virtual environment (recommended):**
     ```bash
@@ -47,14 +47,12 @@ Follow these steps to set up and run the application on your local machine:
     ```bash
     pip install -r requirements.txt
     ```
-    *(**Note:** Make sure you have a `requirements.txt` file in your repository listing all necessary Python libraries, like `streamlit`, `transformers`, `torch`, `librosa`, etc.)*
 
 4.  **Run the Streamlit application:**
     ```bash
-    streamlit run app.py
+    streamlit run asr.py
     ```
-    *(**Note:** Replace `app.py` with the actual name of your main Streamlit application file if it's different.)*
-
+    
     Your browser should automatically open to the application (usually `http://localhost:8501`).
 
 ---
