@@ -5,3 +5,4 @@ soundfile
 streamlit-mic-recorder
 accelerate
 datasets
+librosa
