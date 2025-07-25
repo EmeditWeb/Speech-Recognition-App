@@ -4,7 +4,7 @@ import os
 import tempfile
 import io
 from streamlit_mic_recorder import mic_recorder
-# No need for HfFolder as the current model is public and accessed via secrets for obscurity, not private access.
+
 
 # --- Meta Tags and Favicon --
 st.set_page_config(
@@ -58,11 +58,6 @@ st.markdown(
         z-index: 100; /* Ensure footer is on top of other elements */
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow at the top */
     }
-
-    /* --- REMOVED ELASTIC TEXTAREA CSS --- */
-    /* The previous CSS to force height: auto and hide overflow-y is removed */
-    /* to restore fixed height with internal scrollbar functionality. */
-    /* If you ever want elastic behavior again, you can re-add that CSS. */
 
     /* --- MEDIA QUERIES for Mobile Responsiveness --- */
     @media (max-width: 768px) { /* Styles for screens up to 768px wide (e.g., tablets and phones) */
@@ -126,14 +121,13 @@ def transcribe_long_form(audio_input_bytes, file_format="wav"):
     try:
         # Create a BytesIO object from the audio bytes
         audio_io = io.BytesIO(audio_input_bytes)
-
         
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format}") as tmp_file:
             tmp_file.write(audio_io.getvalue())
             filepath = tmp_file.name
 
         output = asr(
-            input=filepath, # input_features refused to work even with uodated transformer library 
+            inputs=filepath, # input_features refused to work even with uodated transformer library 
             chunk_length_s=30,  # For handling long audio files (e.g., audio more than 30 secs)
             batch_size=8, 
         )
