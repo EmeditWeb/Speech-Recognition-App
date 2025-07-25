@@ -1,5 +1,6 @@
 import streamlit as st
 # Import individual components from transformers
+from streamlit_mic_recorder import mic_recorder
 from transformers import AutoModelForSpeechSeq2Seq, AutoFeatureExtractor, AutoTokenizer
 import os
 import tempfile
